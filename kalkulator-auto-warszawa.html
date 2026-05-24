@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Аренда или покупка авто — Варшава</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --ink:#1c2421; --muted:#5e6b64; --line:#dfe4e0; --paper:#f4f1ea; --card:#fbfaf6;
+    --buy:#1d7a52; --rent:#2f6fb0; --warn:#9a6a16;
+    --buy-bg:#e7f1ea; --rent-bg:#e6eef6; --warn-bg:#f6efdd;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",sans-serif; line-height:1.45;
+    padding:24px 16px 64px;}
+  .wrap{max-width:860px; margin:0 auto;}
+  h1{font-family:"Fraunces",serif; font-weight:600; font-size:clamp(26px,5vw,38px);
+    margin:0 0 4px; letter-spacing:-0.01em;}
+  .sub{color:var(--muted); margin:0 0 24px; font-size:15px;}
+  .presets{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
+  .presets button{flex:1; min-width:180px; cursor:pointer; padding:14px 16px;
+    border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
+    border-radius:var(--radius); font-family:inherit; font-size:14px; font-weight:600;
+    transition:transform .12s ease, opacity .12s ease;}
+  .presets button:active{transform:translateY(1px);}
+  .presets button.ghost{background:transparent; color:var(--ink);}
+  .section-label{font-family:"Fraunces",serif; font-size:18px; font-weight:600;
+    margin:26px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line);}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px;}
+  .grid.tight{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px;}
+  .field label, .slider .lab{font-size:13px; color:var(--muted); display:block; margin-bottom:5px;}
+  .field input[type=number]{width:100%; padding:9px 10px; border:1px solid var(--line);
+    border-radius:9px; font-family:inherit; font-size:15px; background:var(--card); color:var(--ink);}
+  .slider .lab{display:flex; justify-content:space-between;}
+  .slider .val{color:var(--ink); font-weight:600;}
+  input[type=range]{width:100%; accent-color:var(--buy); margin-top:2px;}
+  .chk{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); margin-top:8px;}
+  .chk input{width:auto; accent-color:var(--buy);}
+  .total-days{font-size:15px; margin:14px 0 4px;}
+  .total-days b{font-family:"Fraunces",serif;}
+  .results{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin:28px 0 18px;}
+  .metric{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;}
+  .metric .k{font-size:13px; color:var(--muted);}
+  .metric .v{font-family:"Fraunces",serif; font-size:28px; font-weight:600; margin-top:4px;}
+  .metric.buy{border-left:4px solid var(--buy);}
+  .metric.rent{border-left:4px solid var(--rent);}
+  .verdict{font-size:16px; padding:14px 16px; border-radius:var(--radius); margin-bottom:26px;}
+  .chartbox{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; height:320px; position:relative;}
+  .note{font-size:13px; color:var(--muted); margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Аренда или покупка авто</h1>
+  <p class="sub">Варшава · горизонт 1 год · точка безразличия — в днях аренды за год</p>
+
+  <div class="presets">
+    <button id="p-octavia" class="ghost">Octavia 1.4 TSI бензин · 19 900</button>
+    <button id="p-i30">Hyundai i30 дизель · 23 900</button>
+  </div>
+
+  <div class="section-label">Сезонность аренды</div>
+  <div class="grid">
+    <div class="slider"><span class="lab"><span>Активных месяцев</span><span class="val" id="o-busyM">4</span></span><input type="range" id="busyM" min="0" max="12" step="1" value="4"/></div>
+    <div class="field"><label>Дней / активный мес.</label><input type="number" id="busyD" value="7"/></div>
+    <div class="field"><label>Дней / спокойный мес.</label><input type="number" id="quietD" value="2"/></div>
+    <div class="slider"><span class="lab"><span>Км в год (всего)</span><span class="val" id="o-km">9 000</span></span><input type="range" id="km" min="3000" max="30000" step="500" value="9000"/></div>
+  </div>
+  <p class="total-days">Итого дней аренды в год: <b id="o-totaldays">44</b></p>
+
+  <div class="section-label">Аренда (автомат)</div>
+  <div class="grid">
+    <div class="slider"><span class="lab"><span>Ставка / день</span><span class="val" id="o-rate">199 zł</span></span><input type="range" id="rate" min="100" max="400" step="10" value="199"/></div>
+    <div class="slider"><span class="lab"><span>Защита / день</span><span class="val" id="o-prot">60 zł</span></span><input type="range" id="prot" min="0" max="100" step="5" value="60"/></div>
+    <div class="field"><label>Сборы за год</label><input type="number" id="feesYear" value="600"/></div>
+    <div class="field"><label>Расход аренды, л</label><input type="number" id="conRent" value="6.5" step="0.1"/></div>
+    <div class="field"><label>Топливо аренды, zł/л</label><input type="number" id="fuelRent" value="6.9" step="0.1"/></div>
+  </div>
+
+  <div class="section-label">Покупка</div>
+  <div class="grid">
+    <div class="slider"><span class="lab"><span>Ремонт / год</span><span class="val" id="o-rep">3 000 zł</span></span><input type="range" id="repairs" min="0" max="10000" step="100" value="3000"/></div>
+    <div class="slider"><span class="lab"><span>OC (страховка)</span><span class="val" id="o-oc">2 000 zł</span></span><input type="range" id="oc" min="800" max="4000" step="50" value="2000"/></div>
+  </div>
+  <div class="grid tight" style="margin-top:16px;">
+    <div class="field"><label>Покупка</label><input type="number" id="buy" value="23900"/></div>
+    <div class="field"><label>Продажа через год</label><input type="number" id="sell" value="20500"/></div>
+    <div class="field"><label>Сервис</label><input type="number" id="service" value="1000"/></div>
+    <div class="field"><label>Шины</label><input type="number" id="tires" value="0"/></div>
+    <div class="field"><label>Парковка / мес</label><input type="number" id="parking" value="350"/></div>
+    <div class="field"><label>Прочее / год</label><input type="number" id="other" value="500"/></div>
+    <div class="field"><label>Топливо своё, zł/л</label><input type="number" id="fuelOwn" value="7.4" step="0.1"/></div>
+    <div class="field"><label>Расход свой, л</label><input type="number" id="conOwn" value="5.5" step="0.1"/></div>
+    <div class="field"><label>Разовые при покупке</label><input type="number" id="oneTime" value="400"/></div>
+    <div class="field"><label>% на капитал / год</label><input type="number" id="capitalPct" value="0" step="0.5"/></div>
+  </div>
+  <label class="chk"><input type="checkbox" id="pcc" checked/> Налог PCC 2% при покупке у частника</label>
+
+  <div class="results">
+    <div class="metric buy"><div class="k">Покупка / год</div><div class="v" id="r-own">—</div></div>
+    <div class="metric rent"><div class="k">Аренда / год</div><div class="v" id="r-rent">—</div></div>
+    <div class="metric"><div class="k">Безразлично при</div><div class="v" id="r-break">—</div></div>
+  </div>
+
+  <div class="verdict" id="verdict">—</div>
+
+  <div class="chartbox">
+    <canvas id="chart" role="img" aria-label="График годовой стоимости покупки и аренды в зависимости от числа дней аренды в год"></canvas>
+  </div>
+
+  <p class="note">Зелёная пунктирная линия — покупка (почти не зависит от числа дней). Синяя — аренда. Их пересечение и есть «безразлично при N днях». Пресет Octavia — бензин ~7 л на Pb95, риск цепь+DSG; i30 — дизель ~5,5 л, но 213 тыс. км. OC уточните живой котировкой на rankomat/mubi — это единственный параметр, который стоит закрыть фактом.</p>
+</div>
+
+<script>
+(function(){
+  var nums=['busyM','busyD','quietD','km','rate','prot','feesYear','conRent','fuelRent','repairs','oc','buy','sell','service','tires','parking','other','fuelOwn','conOwn','oneTime','capitalPct'];
+  function v(id){return parseFloat(document.getElementById(id).value)||0;}
+  function fmt(n){return Math.round(n).toLocaleString('pl-PL')+' zł';}
+
+  function totalDays(){var b=v('busyM');return b*v('busyD')+(12-b)*v('quietD');}
+  function fixedOwn(){
+    var pcc=document.getElementById('pcc').checked?0.02*v('buy'):0;
+    var cap=v('capitalPct')/100*v('buy');
+    return (v('buy')-v('sell'))+pcc+v('oc')+v('service')+v('repairs')+v('tires')+99+v('parking')*12+v('other')+v('oneTime')+cap;
+  }
+  function ownTotal(){return fixedOwn()+v('km')/100*v('conOwn')*v('fuelOwn');}
+  function rentFuel(){return v('km')/100*v('conRent')*v('fuelRent');}
+  function rentTotal(d){return d*(v('rate')+v('prot'))+rentFuel()+v('feesYear');}
+
+  var chart;
+  function render(){
+    document.getElementById('o-busyM').textContent=v('busyM');
+    document.getElementById('o-km').textContent=Math.round(v('km')).toLocaleString('pl-PL');
+    document.getElementById('o-rate').textContent=fmt(v('rate'));
+    document.getElementById('o-prot').textContent=fmt(v('prot'));
+    document.getElementById('o-rep').textContent=fmt(v('repairs'));
+    document.getElementById('o-oc').textContent=fmt(v('oc'));
+    var td=totalDays();
+    document.getElementById('o-totaldays').textContent=td;
+
+    var own=ownTotal(), rent=rentTotal(td);
+    document.getElementById('r-own').textContent=fmt(own);
+    document.getElementById('r-rent').textContent=fmt(rent);
+
+    var perDay=v('rate')+v('prot');
+    var be=perDay>0?(own-rentFuel()-v('feesYear'))/perDay:null;
+    document.getElementById('r-break').textContent=(be===null||be<0)?'—':(Math.round(be)+' дн./год');
+
+    var diff=rent-own, el=document.getElementById('verdict');
+    if(Math.abs(diff)<400){el.style.background='var(--warn-bg)';el.style.color='var(--warn)';
+      el.textContent='При '+td+' днях аренды в год варианты почти равны (разница '+fmt(Math.abs(diff))+'). Решает удобство и риск ремонта.';}
+    else if(diff>0){el.style.background='var(--buy-bg)';el.style.color='var(--buy)';
+      el.textContent='При '+td+' днях аренды в год покупка дешевле на '+fmt(diff)+' в год.';}
+    else{el.style.background='var(--rent-bg)';el.style.color='var(--rent)';
+      el.textContent='При '+td+' днях аренды в год аренда дешевле на '+fmt(-diff)+' в год.';}
+
+    var xs=[0,12,24,36,48,60,72,84,96];
+    if(chart){
+      chart.data.datasets[0].data=xs.map(function(){return Math.round(own);});
+      chart.data.datasets[1].data=xs.map(function(d){return Math.round(rentTotal(d));});
+      chart.update();
+    }
+  }
+
+  document.getElementById('p-octavia').onclick=function(){
+    document.getElementById('buy').value=19900;document.getElementById('sell').value=17500;
+    document.getElementById('conOwn').value=7;document.getElementById('fuelOwn').value=6.9;
+    document.getElementById('repairs').value=3500;render();};
+  document.getElementById('p-i30').onclick=function(){
+    document.getElementById('buy').value=23900;document.getElementById('sell').value=20500;
+    document.getElementById('conOwn').value=5.5;document.getElementById('fuelOwn').value=7.4;
+    document.getElementById('repairs').value=3000;render();};
+
+  nums.forEach(function(id){document.getElementById(id).addEventListener('input',render);});
+  document.getElementById('pcc').addEventListener('change',render);
+
+  chart=new Chart(document.getElementById('chart'),{
+    type:'line',
+    data:{labels:[0,12,24,36,48,60,72,84,96],
+      datasets:[
+        {label:'Покупка (фикс. в год)',data:[],borderColor:'#1d7a52',backgroundColor:'#1d7a52',borderDash:[6,4],tension:0,pointRadius:0,borderWidth:2.5},
+        {label:'Аренда',data:[],borderColor:'#2f6fb0',backgroundColor:'#2f6fb0',tension:0,pointRadius:0,borderWidth:2.5}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{boxWidth:14,font:{family:'IBM Plex Sans',size:13}}}},
+      scales:{
+        x:{title:{display:true,text:'дней аренды в год',font:{family:'IBM Plex Sans'}},grid:{color:'#ece8df'}},
+        y:{beginAtZero:true,grid:{color:'#ece8df'},ticks:{callback:function(val){return (val/1000)+'k';},font:{family:'IBM Plex Sans'}}}
+      }}
+  });
+  render();
+})();
+</script>
+</body>
+</html>
