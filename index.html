@@ -10,14 +10,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root{
-    --ink:#1d1d1f; --muted:#6e6e73; --line:#d2d2d7; --paper:#f5f5f7; --card:#ffffff;
-    --buy:#34c759; --rent:#007aff; --warn:#ff9f0a;
-    --buy-bg:#ebfaef; --rent-bg:#eaf3ff; --warn-bg:#fff5e5;
+    --ink:#1d1d1f; --muted:#86868b; --line:#d2d2d7; --paper:#fbfbfd; --card:#ffffff;
+    --buy:#2d8659; --rent:#3a6db5; --warn:#b5850a;
+    --buy-bg:#eef6f1; --rent-bg:#edf2f9; --warn-bg:#fdf6e8;
     --radius:14px;
   }
   *{box-sizing:border-box;}
   body{margin:0;
-    background:radial-gradient(1200px 600px at 15% -10%, #ffffff 0%, #f5f5f7 48%, #eef1f6 100%);
+    background:#fbfbfd;
     color:var(--ink);
     font-family:"IBM Plex Sans",sans-serif; line-height:1.45;
     padding:24px 16px 64px;}
@@ -30,9 +30,9 @@
     border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
     border-radius:var(--radius); font-family:inherit; font-size:14px; font-weight:600;
     transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease;}
-  .presets button.active{box-shadow:0 0 0 2px rgba(52,199,89,.28) inset;}
+  .presets button.active{box-shadow:0 0 0 2px rgba(45,134,89,.22) inset;}
   .presets button:active{transform:translateY(1px);}
-  .presets button.ghost{background:#ffffffb8; color:var(--ink); border-color:#c8c8ce;}
+  .presets button.ghost{background:#ffffff; color:var(--ink); border-color:#d2d2d7;}
   .preset-help{margin:-14px 0 18px; font-size:13px; color:var(--muted);}
   .section-label{font-family:"Fraunces",serif; font-size:18px; font-weight:600;
     margin:26px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line);}
@@ -218,8 +218,8 @@
     type:'line',
     data:{labels:[0,12,24,36,48,60,72,84,96],
       datasets:[
-        {label:'Покупка (фикс. в год)',data:[],borderColor:'#34c759',backgroundColor:'#34c759',borderDash:[6,4],tension:0,pointRadius:0,borderWidth:2.5},
-        {label:'Аренда',data:[],borderColor:'#007aff',backgroundColor:'#007aff',tension:0,pointRadius:0,borderWidth:2.5}
+        {label:'Покупка (фикс. в год)',data:[],borderColor:'#2d8659',backgroundColor:'#2d8659',borderDash:[6,4],tension:0,pointRadius:0,borderWidth:2.5},
+        {label:'Аренда',data:[],borderColor:'#3a6db5',backgroundColor:'#3a6db5',tension:0,pointRadius:0,borderWidth:2.5}
       ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,labels:{boxWidth:14,font:{family:'IBM Plex Sans',size:13}}}},
