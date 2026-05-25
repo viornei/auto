@@ -39,7 +39,7 @@
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px;}
   .grid.tight{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px;}
   .field label, .slider .lab{font-size:13px; color:var(--muted); display:block; margin-bottom:5px;}
-  .label-row{display:inline-flex; align-items:center; gap:5px;}
+  .field label.label-row{display:inline-flex; align-items:center; gap:5px;}
   .info-tip{position:relative; display:inline-flex; align-items:center; justify-content:center;
     width:18px; height:18px; border:1px solid var(--line); border-radius:999px;
     font-size:12px; font-weight:600; color:var(--muted); cursor:help; background:var(--card);}
@@ -95,7 +95,7 @@
   </div>
   <p class="total-days">Итого дней аренды в год: <b id="o-totaldays">44</b></p>
 
-  <div class="section-label">Аренда (автомат)</div>
+  <div class="section-label">Аренда</div>
   <div class="grid">
     <div class="slider"><span class="lab"><span>Ставка / день</span><span class="val" id="o-rate">199 zł</span></span><input type="range" id="rate" min="100" max="400" step="10" value="199"/></div>
     <div class="slider"><span class="lab"><span>Защита / день</span><span class="val" id="o-prot">60 zł</span></span><input type="range" id="prot" min="0" max="100" step="5" value="60"/></div>
