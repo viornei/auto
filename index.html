@@ -10,13 +10,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root{
-    --ink:#1c2421; --muted:#5e6b64; --line:#dfe4e0; --paper:#f4f1ea; --card:#fbfaf6;
-    --buy:#1d7a52; --rent:#2f6fb0; --warn:#9a6a16;
-    --buy-bg:#e7f1ea; --rent-bg:#e6eef6; --warn-bg:#f6efdd;
+    --ink:#1d1d1f; --muted:#6e6e73; --line:#d2d2d7; --paper:#f5f5f7; --card:#ffffff;
+    --buy:#34c759; --rent:#007aff; --warn:#ff9f0a;
+    --buy-bg:#ebfaef; --rent-bg:#eaf3ff; --warn-bg:#fff5e5;
     --radius:14px;
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--paper); color:var(--ink);
+  body{margin:0;
+    background:radial-gradient(1200px 600px at 15% -10%, #ffffff 0%, #f5f5f7 48%, #eef1f6 100%);
+    color:var(--ink);
     font-family:"IBM Plex Sans",sans-serif; line-height:1.45;
     padding:24px 16px 64px;}
   .wrap{max-width:860px; margin:0 auto;}
@@ -27,16 +29,27 @@
   .presets button{flex:1; min-width:180px; cursor:pointer; padding:14px 16px;
     border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
     border-radius:var(--radius); font-family:inherit; font-size:14px; font-weight:600;
-    transition:transform .12s ease, opacity .12s ease;}
-  .presets button.active{box-shadow:0 0 0 2px rgba(29,122,82,.25) inset;}
+    transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease;}
+  .presets button.active{box-shadow:0 0 0 2px rgba(52,199,89,.28) inset;}
   .presets button:active{transform:translateY(1px);}
-  .presets button.ghost{background:transparent; color:var(--ink);}
+  .presets button.ghost{background:#ffffffb8; color:var(--ink); border-color:#c8c8ce;}
   .preset-help{margin:-14px 0 18px; font-size:13px; color:var(--muted);}
   .section-label{font-family:"Fraunces",serif; font-size:18px; font-weight:600;
     margin:26px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line);}
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px;}
   .grid.tight{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px;}
   .field label, .slider .lab{font-size:13px; color:var(--muted); display:block; margin-bottom:5px;}
+  .label-row{display:flex; align-items:center; gap:6px;}
+  .info-tip{position:relative; display:inline-flex; align-items:center; justify-content:center;
+    width:18px; height:18px; border:1px solid var(--line); border-radius:999px;
+    font-size:12px; font-weight:600; color:var(--muted); cursor:help; background:var(--card);}
+  .info-tip:focus-visible{outline:2px solid var(--buy); outline-offset:1px;}
+  .info-tip::after{content:attr(data-tip); position:absolute; left:50%; transform:translateX(-50%);
+    bottom:calc(100% + 8px); width:min(320px,78vw); background:#1d1d1f; color:#f5f5f7;
+    border-radius:10px; padding:8px 10px; font-size:12px; line-height:1.35;
+    box-shadow:0 8px 20px rgba(0,0,0,.18); opacity:0; pointer-events:none;
+    transition:opacity .12s ease; z-index:20;}
+  .info-tip:hover::after, .info-tip:focus-visible::after{opacity:1;}
   .field input[type=number]{width:100%; padding:9px 10px; border:1px solid var(--line);
     border-radius:9px; font-family:inherit; font-size:15px; background:var(--card); color:var(--ink);}
   .slider .lab{display:flex; justify-content:space-between;}
@@ -47,7 +60,8 @@
   .total-days{font-size:15px; margin:14px 0 4px;}
   .total-days b{font-family:"Fraunces",serif;}
   .results{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin:28px 0 18px;}
-  .metric{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;}
+  .metric{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;
+    box-shadow:0 8px 20px rgba(0,0,0,.04);}
   .metric .k{font-size:13px; color:var(--muted);}
   .metric .v{font-family:"Fraunces",serif; font-size:28px; font-weight:600; margin-top:4px;}
   .metric.buy{border-left:4px solid var(--buy);}
@@ -67,10 +81,10 @@
   <p class="sub">Варшава · горизонт 1 год · точка безразличия — в днях аренды за год</p>
 
   <div class="presets">
-    <button id="p-octavia" class="ghost active">Пресет A: бензин · 19 900</button>
-    <button id="p-i30">Пресет B: дизель · 23 900</button>
+    <button id="p-octavia" class="ghost active">Skoda Octavia 1.4 TSI · пример покупки</button>
+    <button id="p-i30">Hyundai i30 дизель · пример покупки</button>
   </div>
-  <p class="preset-help">Эти две машины — только быстрые пресеты для старта расчета. Они подставляют примерные параметры и не являются «правильным выбором».</p>
+  <p class="preset-help">Названия в пресетах — это примеры покупки для быстрого старта. Используйте их как шаблон и затем подставьте параметры своего варианта.</p>
 
   <div class="section-label">Сезонность аренды</div>
   <div class="grid">
@@ -85,7 +99,12 @@
   <div class="grid">
     <div class="slider"><span class="lab"><span>Ставка / день</span><span class="val" id="o-rate">199 zł</span></span><input type="range" id="rate" min="100" max="400" step="10" value="199"/></div>
     <div class="slider"><span class="lab"><span>Защита / день</span><span class="val" id="o-prot">60 zł</span></span><input type="range" id="prot" min="0" max="100" step="5" value="60"/></div>
-    <div class="field"><label>Сборы за год</label><input type="number" id="feesYear" value="600"/></div>
+    <div class="field">
+      <label class="label-row">Доплаты проката / год
+        <span class="info-tip" tabindex="0" aria-label="Что входит в доплаты проката" data-tip="Разовые доплаты прокатных компаний сверх суточной ставки: opłata przygotowawcza (подготовка авто), podstawienie (подача), odbior (возврат). Здесь укажите суммарно за год.">i</span>
+      </label>
+      <input type="number" id="feesYear" value="600"/>
+    </div>
     <div class="field"><label>Расход аренды, л</label><input type="number" id="conRent" value="6.5" step="0.1"/></div>
     <div class="field"><label>Топливо аренды, zł/л</label><input type="number" id="fuelRent" value="6.9" step="0.1"/></div>
   </div>
@@ -199,14 +218,14 @@
     type:'line',
     data:{labels:[0,12,24,36,48,60,72,84,96],
       datasets:[
-        {label:'Покупка (фикс. в год)',data:[],borderColor:'#1d7a52',backgroundColor:'#1d7a52',borderDash:[6,4],tension:0,pointRadius:0,borderWidth:2.5},
-        {label:'Аренда',data:[],borderColor:'#2f6fb0',backgroundColor:'#2f6fb0',tension:0,pointRadius:0,borderWidth:2.5}
+        {label:'Покупка (фикс. в год)',data:[],borderColor:'#34c759',backgroundColor:'#34c759',borderDash:[6,4],tension:0,pointRadius:0,borderWidth:2.5},
+        {label:'Аренда',data:[],borderColor:'#007aff',backgroundColor:'#007aff',tension:0,pointRadius:0,borderWidth:2.5}
       ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,labels:{boxWidth:14,font:{family:'IBM Plex Sans',size:13}}}},
       scales:{
-        x:{title:{display:true,text:'дней аренды в год',font:{family:'IBM Plex Sans'}},grid:{color:'#ece8df'}},
-        y:{beginAtZero:true,grid:{color:'#ece8df'},ticks:{callback:function(val){return (val/1000)+'k';},font:{family:'IBM Plex Sans'}}}
+        x:{title:{display:true,text:'дней аренды в год',font:{family:'IBM Plex Sans'}},grid:{color:'#e5e5ea'}},
+        y:{beginAtZero:true,grid:{color:'#e5e5ea'},ticks:{callback:function(val){return (val/1000)+'k';},font:{family:'IBM Plex Sans'}}}
       }}
   });
   render();
