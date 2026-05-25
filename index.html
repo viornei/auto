@@ -123,8 +123,18 @@
     <div class="field"><label>Прочее / год</label><input type="number" id="other" value="500"/></div>
     <div class="field"><label>Топливо своё, zł/л</label><input type="number" id="fuelOwn" value="7.4" step="0.1"/></div>
     <div class="field"><label>Расход свой, л</label><input type="number" id="conOwn" value="5.5" step="0.1"/></div>
-    <div class="field"><label>Разовые при покупке</label><input type="number" id="oneTime" value="400"/></div>
-    <div class="field"><label>% на капитал / год</label><input type="number" id="capitalPct" value="0" step="0.5"/></div>
+    <div class="field">
+      <label class="label-row">Разовые при покупке
+        <span class="info-tip" tabindex="0" aria-label="Что входит в разовые расходы" data-tip="Например: осмотр машины у механика перед сделкой, перерегистрация авто на себя и другие одноразовые затраты при оформлении.">i</span>
+      </label>
+      <input type="number" id="oneTime" value="400"/>
+    </div>
+    <div class="field">
+      <label class="label-row">% на капитал / год
+        <span class="info-tip" tabindex="0" aria-label="Что такое процент на капитал" data-tip="Упущенная выгода: деньги, вложенные в покупку авто, могли бы приносить доход (депозит, фонд). Укажите годовую ставку, которую вы теряете, заморозив эту сумму в машине.">i</span>
+      </label>
+      <input type="number" id="capitalPct" value="0" step="0.5"/>
+    </div>
   </div>
   <label class="chk"><input type="checkbox" id="pcc" checked/> Налог PCC 2% при покупке у частника</label>
 
