@@ -28,8 +28,10 @@
     border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
     border-radius:var(--radius); font-family:inherit; font-size:14px; font-weight:600;
     transition:transform .12s ease, opacity .12s ease;}
+  .presets button.active{box-shadow:0 0 0 2px rgba(29,122,82,.25) inset;}
   .presets button:active{transform:translateY(1px);}
   .presets button.ghost{background:transparent; color:var(--ink);}
+  .preset-help{margin:-14px 0 18px; font-size:13px; color:var(--muted);}
   .section-label{font-family:"Fraunces",serif; font-size:18px; font-weight:600;
     margin:26px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line);}
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px;}
@@ -54,6 +56,9 @@
   .chartbox{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
     padding:16px; height:320px; position:relative;}
   .note{font-size:13px; color:var(--muted); margin-top:20px;}
+  .info{margin-top:18px; background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); padding:14px 16px; font-size:14px; color:var(--ink);}
+  .info b{font-weight:600;}
 </style>
 </head>
 <body>
@@ -62,9 +67,10 @@
   <p class="sub">Варшава · горизонт 1 год · точка безразличия — в днях аренды за год</p>
 
   <div class="presets">
-    <button id="p-octavia" class="ghost">Octavia 1.4 TSI бензин · 19 900</button>
-    <button id="p-i30">Hyundai i30 дизель · 23 900</button>
+    <button id="p-octavia" class="ghost active">Пресет A: бензин · 19 900</button>
+    <button id="p-i30">Пресет B: дизель · 23 900</button>
   </div>
+  <p class="preset-help">Эти две машины — только быстрые пресеты для старта расчета. Они подставляют примерные параметры и не являются «правильным выбором».</p>
 
   <div class="section-label">Сезонность аренды</div>
   <div class="grid">
@@ -115,7 +121,8 @@
     <canvas id="chart" role="img" aria-label="График годовой стоимости покупки и аренды в зависимости от числа дней аренды в год"></canvas>
   </div>
 
-  <p class="note">Зелёная пунктирная линия — покупка (почти не зависит от числа дней). Синяя — аренда. Их пересечение и есть «безразлично при N днях». Пресет Octavia — бензин ~7 л на Pb95, риск цепь+DSG; i30 — дизель ~5,5 л, но 213 тыс. км. OC уточните живой котировкой на rankomat/mubi — это единственный параметр, который стоит закрыть фактом.</p>
+  <p class="note">Зеленая пунктирная линия — покупка (почти не зависит от числа дней). Синяя — аренда. Пересечение линий показывает точку безразличия: при каком числе дней в год оба сценария стоят примерно одинаково.</p>
+  <div class="info"><b>Как использовать калькулятор универсально:</b> выберите пресет как старт, затем замените ключевые поля под свой кейс: цену покупки и продажи, реальную страховку, расход топлива, сервис и парковку. Для финального решения ориентируйтесь на диапазон сценариев (оптимистичный/базовый/осторожный), а не на один точечный расчет.</div>
 </div>
 
 <script>
@@ -123,6 +130,11 @@
   var nums=['busyM','busyD','quietD','km','rate','prot','feesYear','conRent','fuelRent','repairs','oc','buy','sell','service','tires','parking','other','fuelOwn','conOwn','oneTime','capitalPct'];
   function v(id){return parseFloat(document.getElementById(id).value)||0;}
   function fmt(n){return Math.round(n).toLocaleString('pl-PL')+' zł';}
+  function setActivePreset(id){
+    ['p-octavia','p-i30'].forEach(function(btnId){
+      document.getElementById(btnId).classList.toggle('active',btnId===id);
+    });
+  }
 
   function totalDays(){var b=v('busyM');return b*v('busyD')+(12-b)*v('quietD');}
   function fixedOwn(){
@@ -170,10 +182,12 @@
   }
 
   document.getElementById('p-octavia').onclick=function(){
+    setActivePreset('p-octavia');
     document.getElementById('buy').value=19900;document.getElementById('sell').value=17500;
     document.getElementById('conOwn').value=7;document.getElementById('fuelOwn').value=6.9;
     document.getElementById('repairs').value=3500;render();};
   document.getElementById('p-i30').onclick=function(){
+    setActivePreset('p-i30');
     document.getElementById('buy').value=23900;document.getElementById('sell').value=20500;
     document.getElementById('conOwn').value=5.5;document.getElementById('fuelOwn').value=7.4;
     document.getElementById('repairs').value=3000;render();};
